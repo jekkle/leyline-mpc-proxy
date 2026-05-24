@@ -3,11 +3,26 @@ export const config = {
 };
 
 export default async function handler(request) {
+  // Handle preflight OPTIONS request
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    });
+  }
+
   const { searchParams } = new URL(request.url);
   const name = searchParams.get('name');
 
   if (!name) {
-    return new Response('Missing name parameter', { status: 400 });
+    return new Response('Missing name parameter', { 
+      status: 400,
+      headers: { 'Access-Control-Allow-Origin': '*' }
+    });
   }
 
   try {
@@ -19,12 +34,13 @@ export default async function handler(request) {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
       },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to fetch' }), {
+    return new Response(JSON.stringify({ error: 'Failed to fetch from MPC' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Access-Control-Allow-Origin': '*' },
     });
   }
 }
